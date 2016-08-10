@@ -40,9 +40,14 @@ function compose (middleware) {
       const fn = middleware[i] || next
       if (!fn) return Promise.resolve()
       try {
-        return Promise.resolve(fn(context, function next () {
-          return dispatch(i + 1)
-        }))
+        return new Promise(function (resolve, reject) {
+          fn(context, function next (err) {
+            if (err) {
+              return reject(err);
+            }
+            return resolve(dispatch(i + 1));
+          });
+        });
       } catch (err) {
         return Promise.reject(err)
       }
